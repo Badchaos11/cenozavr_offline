@@ -18,6 +18,7 @@ type Product struct {
 
 func main() {
 	// urlo := "https://www.ozon.ru/category/moloko-9283/"
+	dsn := "badchaos:pe0038900@tcp(127.0.0.1:3306)/cenozavr?charset=utf8&parseTime=True&loc=Local"
 
 	doc, err := htmlquery.LoadDoc("ozon_index.html")
 	if err != nil {
@@ -31,7 +32,7 @@ func main() {
 
 	result := []Product{}
 
-	check_table()
+	check_table(dsn)
 
 	for i, n := range list {
 
@@ -51,31 +52,14 @@ func main() {
 		if len(row_data.Price) == 2 {
 			row_data.Price = htmlquery.InnerText(price_2)
 		}
-		insert(row_data)
+		insert(dsn, row_data)
 		result = append(result, row_data)
 	}
 
-	// for _, n := range result {
-	// 	fmt.Println(n)
-	// }
-
-	// dc1, err := htmlquery.LoadURL(urlo)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// dcs, err := htmlquery.QueryAll(dc1, "//div")
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// for _, n := range dcs {
-	// 	fmt.Println(htmlquery.InnerText(n))
-	// }
-
 }
 
-func insert(data Product) {
-	dsn := "badchaos:pe0038900@tcp(127.0.0.1:3306)/cenozavr?charset=utf8&parseTime=True&loc=Local"
+func insert(dsn string, data Product) {
+
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
@@ -86,8 +70,7 @@ func insert(data Product) {
 
 }
 
-func check_table() {
-	dsn := "badchaos:pe0038900@tcp(127.0.0.1:3306)/cenozavr?charset=utf8&parseTime=True&loc=Local"
+func check_table(dsn string) {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
